@@ -15,7 +15,6 @@ from elric.trigger.base import BaseTrigger
 from elric.core.exceptions import WrongType
 
 
-
 class Job(object):
 
     def __init__(self, **job_in_dict):
