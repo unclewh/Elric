@@ -8,6 +8,7 @@ from elric.jobstore.base import BaseJobStore
 from elric.core.utils import datetime_to_utc_timestamp, utc_timestamp_to_datetime
 from elric.core.exceptions import JobAlreadyExist, JobDoesNotExist
 
+
 class MemoryJobStore(BaseJobStore):
 
     def __init__(self, context, **config):
@@ -26,6 +27,7 @@ class MemoryJobStore(BaseJobStore):
             raise JobAlreadyExist("add job failed! job [%s] has already exist" % job.id)
         next_timestamp = datetime_to_utc_timestamp(job.next_run_time)
         index = self._get_job_index(job.id, next_timestamp)
+        # 找到任务插入的位置，先按照下一次执行时间排序，下一次执行时间相同按照job_id递增排序
         self.job_run_time.insert(index, (job.id, next_timestamp))
         self.job_info[job.id] = {'serialized_job': job.serialize(), 'job_key': job.job_key,
                                  'next_timestamp': next_timestamp}
