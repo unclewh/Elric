@@ -35,7 +35,9 @@ FILTER_CONFIG = {
 }
 
 JOB_STORE_CONFIG = {
-    'server': {},
+    'server': {
+        'host': ["mongodb://qidun:Z0tPAyMToLSH@qidun-1.qiyi.mongo:27004,qidun-2.qiyi.mongo:27004"]
+    },
     'maximum_records': 3
 }
 
