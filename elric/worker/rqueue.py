@@ -14,6 +14,7 @@ from elric.core.exceptions import AlreadyRunningException
 from elric.worker.base import BaseWorker
 
 
+# worker的作用，向master提交job，执行master下发的任务
 class RQWorker(BaseWorker):
     def __init__(self, name, listen_keys=None, worker_num=2, timezone=None, logger_name='elric.worker'):
         BaseWorker.__init__(self, name, logger_name)
@@ -35,6 +36,7 @@ class RQWorker(BaseWorker):
         while self.running:
             try:
                 # grab job from job queue only if internal_job_queue has space
+                # block设置为True，进程会阻塞到队列存在空闲空间
                 self.internal_job_queue.put("#", True)
                 job_key, serialized_job = self.jobqueue.dequeue_any(self.listen_keys)
                 job = Job.deserialize(serialized_job)
