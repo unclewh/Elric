@@ -4,6 +4,10 @@ from __future__ import (absolute_import, unicode_literals)
 
 from datetime import datetime
 from tzlocal import get_localzone
+'''
+RLock python可重入锁，也叫做递归锁，是指在一个线程中可以多次获取同一把锁
+比如一个线程正在执行一个带锁的方法，该方法中又调用了另一个需要用相同锁的方法，则该线程可以直接执行调用，而无需重新获取锁
+'''
 from threading import Event, RLock
 import threading
 import time
