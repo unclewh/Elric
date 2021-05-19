@@ -10,6 +10,7 @@ from elric.core import settings
 from elric.core.lock import distributed_lock
 
 
+# master的作用，接受worker提交的任务，向worker下发任务，任务的去重处理，从jobstore中查询任务
 class RQMasterExtend(RQMasterBase):
     def __init__(self, timezone=None):
         RQMasterBase.__init__(self, timezone)
