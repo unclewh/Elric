@@ -15,6 +15,7 @@ class RQMasterExtend(RQMasterBase):
     def __init__(self, timezone=None):
         RQMasterBase.__init__(self, timezone)
         self.filter = RedisFilter(**settings.FILTER_CONFIG)
+        # 可重入锁，同一个线程内多次加锁不会阻塞
         self.filter_lock = RLock()
 
     def submit_job(self, job):
@@ -30,9 +31,10 @@ class RQMasterExtend(RQMasterBase):
                 self.log.debug("job [%s] has been filter..." % job.id)
                 return False
 
+        # 及时任务立马序列化让worker执行
         if not job.trigger:
             self._enqueue_job(job.job_key, job.serialize())
-        else:
+        else:  # 定时任务保存到job_store中
             with distributed_lock(**settings.DISTRIBUTED_LOCK_CONFIG):
                 try:
                     self.jobstore.add_job(job)

@@ -48,5 +48,6 @@ class BaseMaster(object):
         """
         self.log.debug('start subscribe thread..')
         thd = threading.Thread(target=self.subscribe_mq)
+        # 将主线程设置为守护线程，这时候要是主线程执行结束了，不管子线程是否完成，一并和主线程退出
         thd.setDaemon(True)
         thd.start()

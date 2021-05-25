@@ -123,12 +123,14 @@ class RQMasterBase(BaseMaster):
         self._stopped = False
         self.log.debug('eric master start...')
 
+        # 这里面设置了一个守护线程，当start()线程结束的时候，子线程自动退出
         self.start_subscribe_thread()
 
         while True:
             now = datetime.now(self.timezone)
             wait_seconds = None
             with distributed_lock(**settings.DISTRIBUTED_LOCK_CONFIG):
+                # 获取就绪的任务，即下一次调度时间小于当前时间的任务
                 for job_id, job_key, serialized_job in self.jobstore.get_due_jobs(now):
                     # enqueue due job into redis queue
                     self._enqueue_job(job_key, serialized_job)
@@ -150,10 +152,13 @@ class RQMasterBase(BaseMaster):
             if closest_run_time is not None:
                 wait_seconds = min(max(timedelta_seconds(closest_run_time - now), 0), self.MIN_WAIT_TIME)
                 self.log.debug('Next wakeup is due at %s (in %f seconds)' % (closest_run_time, wait_seconds))
+            # 阻塞线程，直到内部识别标识为true
             self._event.wait(wait_seconds if wait_seconds is not None else self.MIN_WAIT_TIME)
+            # 将内部识别标识为false，之后调用wait的线程将被阻塞
             self._event.clear()
 
     def wake_up(self):
+        # 将内部标识设置为 true 。所有正在等待这个事件的线程将被唤醒
         self._event.set()
 
     @property
