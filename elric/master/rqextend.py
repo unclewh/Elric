@@ -19,6 +19,7 @@ class RQMasterExtend(RQMasterBase):
 
     def submit_job(self, job):
         def exist(key, value):
+            # 判断任务是否存在的时候加锁
             with self.filter_lock:
                 return self.filter.exist(key, value)
 
