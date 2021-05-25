@@ -27,6 +27,7 @@ class RQWorker(BaseWorker):
         self.executor = ProcessPoolExecutor(worker_num, self)
         self._stopped = True
 
+    # worker执行任务
     def start(self):
         if self.running:
             raise AlreadyRunningException
