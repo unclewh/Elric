@@ -24,6 +24,8 @@ class ProcessPoolExecutor(BaseExecutor):
             self.context.finish_job(job.id, False if f.exception() else True,
                                     str(f.exception_info()) if f.exception() else None,
                                     job.job_key, job.need_filter)
+
+        # 真正的执行，调度可调用对象，以func的方式执行并返回future对象
         future = self._pool.submit(job.func, *job.args, **job.kwargs)
         future.add_done_callback(job_done)
 
