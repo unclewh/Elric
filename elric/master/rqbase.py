@@ -36,7 +36,8 @@ class RQMasterBase(BaseMaster):
         self._event = Event()
         self._stopped = True
         self.jobstore = MongoJobStore(self, **settings.JOB_STORE_CONFIG)
-        #self.jobstore = MemoryJobStore(self)
+        # self.jobstore = MemoryJobStore(self)
+        # 如果队列满了，就将任务保存到缓存
         self._internal_buffer_queues = {}
         self._job_maximum_buffer_time = settings.JOB_QUEUE_CONFIG['buffer_time']
 
@@ -124,6 +125,7 @@ class RQMasterBase(BaseMaster):
         self.log.debug('eric master start...')
 
         # 这里面设置了一个守护线程，当start()线程结束的时候，子线程自动退出
+        # 提交，删除，完成任务
         self.start_subscribe_thread()
 
         while True:
@@ -154,11 +156,11 @@ class RQMasterBase(BaseMaster):
                 self.log.debug('Next wakeup is due at %s (in %f seconds)' % (closest_run_time, wait_seconds))
             # 阻塞线程，直到内部识别标识为true
             self._event.wait(wait_seconds if wait_seconds is not None else self.MIN_WAIT_TIME)
-            # 将内部识别标识为false，之后调用wait的线程将被阻塞
+            # 将内部识别标识为false，所有调用wait的线程将被阻塞
             self._event.clear()
 
     def wake_up(self):
-        # 将内部标识设置为 true 。所有正在等待这个事件的线程将被唤醒
+        # 将内部标识设置为 true。调用wait方法的所有线程将被唤醒
         self._event.set()
 
     @property
